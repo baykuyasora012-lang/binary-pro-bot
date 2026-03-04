@@ -2,129 +2,128 @@ import os, time, datetime, random
 from flask import Flask, render_template_string, request, session, redirect
 
 app = Flask(__name__)
-app.secret_key = "v10_god_mode_ultimate_final"
+app.secret_key = "v11_titan_quantum_ai_final_core"
 
-# Super Admin Access
-ACCESS_DATA = {"user": "admin", "pass": "1234"}
+# Access Control
+CREDENTIALS = {"user": "admin", "pass": "1234"}
 
-HTML_V10 = '''
+HTML_V11 = '''
 <!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI GOD MODE - WORLD'S MOST POWERFUL BOT</title>
+    <title>TITAN AI - QUANTUM TRADING CORE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-        :root { --main: #00ffcc; --dark: #050505; --card: #0d0d0d; --win: #00ff88; --loss: #ff3366; }
-        body { background: var(--dark); color: #fff; font-family: 'Orbitron', sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
+        :root { --neon: #00ff9d; --bg: #010409; --panel: #0d1117; --loss: #ff4d4d; --win: #00e676; }
+        body { background: var(--bg); color: #c9d1d9; font-family: 'Share Tech Mono', monospace; margin: 0; padding: 10px; }
         
-        /* Matrix Background Effect */
-        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #00ffcc11, transparent); z-index: -1; }
+        /* Neon HUD Interface */
+        .hud-header { display: flex; justify-content: space-between; align-items: center; background: var(--panel); padding: 15px; border-bottom: 2px solid var(--neon); box-shadow: 0 0 20px rgba(0,255,157,0.2); margin-bottom: 15px; border-radius: 10px; }
+        .clock { font-size: 24px; color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+        .power-meter { font-size: 12px; background: #161b22; padding: 5px 10px; border: 1px solid #30363d; border-radius: 5px; }
 
-        .top-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(20,20,20,0.8); padding: 15px; border-radius: 20px; border: 1px solid var(--main); box-shadow: 0 0 15px var(--main); margin-bottom: 15px; }
-        .live-clock { font-size: 20px; font-weight: bold; color: var(--main); letter-spacing: 2px; }
-        .credit-hub { font-size: 11px; text-transform: uppercase; border: 1px solid #333; padding: 5px 10px; border-radius: 5px; }
+        .grid-system { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .box { background: var(--panel); padding: 15px; border-radius: 12px; border: 1px solid #30363d; text-align: center; }
+        .box b { font-size: 22px; display: block; margin-top: 5px; }
 
-        .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #222; text-align: center; }
-        .stat-box b { display: block; font-size: 18px; margin-top: 5px; }
+        .terminal-core { background: linear-gradient(180deg, #0d1117 0%, #010409 100%); padding: 30px; border-radius: 30px; border: 1px solid #30363d; max-width: 480px; margin: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .terminal-core::after { content: "TITAN CORE ACTIVE"; position: absolute; top: 10px; right: 20px; font-size: 8px; color: var(--neon); opacity: 0.5; }
 
-        .terminal { background: linear-gradient(180deg, #111, #000); padding: 30px; border-radius: 40px; border: 1px solid #222; max-width: 500px; margin: auto; position: relative; overflow: hidden; }
-        .terminal::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--main); box-shadow: 0 0 20px var(--main); }
+        h1 { font-size: 16px; text-align: center; color: var(--neon); letter-spacing: 4px; margin-bottom: 30px; }
 
-        h1 { font-size: 16px; text-align: center; color: var(--main); margin-bottom: 25px; letter-spacing: 5px; }
-        
-        input, select { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: var(--main); font-weight: bold; box-sizing: border-box; }
-        
-        .upload-zone { border: 2px dashed var(--main); padding: 25px; border-radius: 20px; text-align: center; margin: 20px 0; cursor: pointer; background: rgba(0,255,204,0.03); }
-        .fire-btn { background: var(--main); color: #000; border: none; width: 100%; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 18px; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 20px rgba(0,255,204,0.4); }
-        .fire-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,255,204,0.6); }
+        input, select { width: 100%; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #30363d; background: #010409; color: var(--neon); font-family: inherit; font-size: 16px; outline: none; box-sizing: border-box; }
+        input:focus { border-color: var(--neon); box-shadow: 0 0 10px rgba(0,255,157,0.2); }
 
-        /* Scanning Animation */
-        .scanner { width: 100%; height: 2px; background: var(--main); position: absolute; left: 0; z-index: 10; display: none; animation: move 2s linear infinite; box-shadow: 0 0 15px var(--main); }
-        @keyframes move { 0% { top: 0; } 100% { top: 100%; } }
+        .upload-area { border: 2px dashed #30363d; padding: 30px; border-radius: 15px; text-align: center; margin: 20px 0; cursor: pointer; transition: 0.3s; background: rgba(0,255,157,0.02); }
+        .upload-area:hover { border-color: var(--neon); background: rgba(0,255,157,0.05); }
 
-        .prediction-result { margin-top: 30px; padding: 25px; background: #080808; border-radius: 25px; border: 1px solid var(--main); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { border-color: #222; } 50% { border-color: var(--main); } 100% { border-color: #222; } }
+        .execute-btn { background: var(--neon); color: #000; border: none; width: 100%; padding: 20px; border-radius: 12px; font-weight: 900; font-size: 18px; cursor: pointer; box-shadow: 0 5px 25px rgba(0,255,157,0.3); transition: 0.3s; }
+        .execute-btn:active { transform: scale(0.98); }
 
-        .signal { font-size: 35px; font-weight: 900; text-align: center; margin-bottom: 10px; text-shadow: 0 0 15px currentColor; }
-        .logic-panel { font-size: 12px; line-height: 1.6; color: #aaa; background: #111; padding: 15px; border-radius: 15px; border-left: 5px solid var(--main); }
+        /* Scanning Laser */
+        .laser { width: 100%; height: 3px; background: var(--neon); position: absolute; left: 0; display: none; z-index: 100; box-shadow: 0 0 15px var(--neon); animation: scanMove 1.5s infinite; }
+        @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
 
-        .action-row { display: flex; gap: 10px; margin-top: 20px; }
-        .action-row a { flex: 1; text-decoration: none; text-align: center; padding: 15px; border-radius: 12px; font-weight: bold; color: #fff; }
+        .result-hud { margin-top: 30px; padding: 20px; background: #161b22; border-radius: 20px; border-left: 5px solid var(--neon); animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .sig-display { font-size: 36px; font-weight: 900; text-align: center; margin: 10px 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .logic-terminal { font-size: 12px; background: #010409; padding: 15px; border-radius: 10px; border: 1px solid #30363d; margin-top: 15px; color: #8b949e; line-height: 1.6; }
+
+        .footer-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .footer-btns a { flex: 1; text-decoration: none; text-align: center; padding: 15px; border-radius: 8px; font-weight: bold; color: white; transition: 0.3s; }
     </style>
 </head>
 <body>
-    <div class="bg-glow"></div>
 
-{% if not session.get('god_access') %}
+{% if not session.get('titan_auth') %}
     <div style="height: 100vh; display: flex; align-items: center; justify-content: center;">
-        <div class="terminal">
-            <h1>UNAUTHORIZED ACCESS</h1>
+        <div class="terminal-core">
+            <h1>AUTHENTICATION REQUIRED</h1>
             <form method="POST" action="/login">
-                <input type="text" name="u" placeholder="GOD USERNAME" required>
-                <input type="password" name="p" placeholder="GOD PASSWORD" required>
-                <button type="submit" class="fire-btn">INITIALIZE GOD MODE</button>
+                <input type="text" name="u" placeholder="TITAN ID" required>
+                <input type="password" name="p" placeholder="SECURITY KEY" required>
+                <button type="submit" class="execute-btn">INITIATE SYSTEM</button>
             </form>
         </div>
     </div>
 {% else %}
-    <div class="top-bar">
-        <div class="live-clock" id="clk">00:00:00</div>
-        <div class="credit-hub">POWER: ⚡ {{ session['credits'] }}%</div>
+    <div class="hud-header">
+        <div class="clock" id="clock">00:00:00</div>
+        <div class="power-meter">⚡ SYSTEM POWER: {{ session['credits'] }}%</div>
     </div>
 
-    <div class="grid-stats">
-        <div class="stat-box"><small>WINS</small><b style="color:var(--win)">{{ session['wins'] }}</b></div>
-        <div class="stat-box"><small>LOSSES</small><b style="color:var(--loss)">{{ session['losses'] }}</b></div>
-        <div class="stat-box"><small>TARGET</small><b style="color:var(--main)">{{ (session['wins'] * 10) }}%</b></div>
+    <div class="grid-system">
+        <div class="box"><small>WINS</small><b style="color:var(--win)">{{ session['wins'] }}</b></div>
+        <div class="box"><small>LOSSES</small><b style="color:var(--loss)">{{ session['losses'] }}</b></div>
     </div>
 
-    <div class="terminal">
-        <div class="scanner" id="scn"></div>
-        <h1>NEURAL SCANNER V10</h1>
-        <form method="POST" action="/process" enctype="multipart/form-data" onsubmit="document.getElementById('scn').style.display='block'">
-            <input type="number" name="b" placeholder="CURRENT BALANCE ($)" required value="{{ session.get('last_b', '') }}">
+    <div class="terminal-core">
+        <div class="laser" id="laser"></div>
+        <h1>QUANTUM ANALYZER V11</h1>
+        <form method="POST" action="/analyze" enctype="multipart/form-data" onsubmit="document.getElementById('laser').style.display='block'">
+            <input type="number" name="bal" placeholder="TOTAL BALANCE ($)" required value="{{ session.get('last_bal', '') }}">
             
-            <select name="pair">
-                <option value="EUR/USD">EUR/USD (OTC)</option>
-                <option value="GBP/USD">GBP/USD (OTC)</option>
-                <option value="USD/JPY">USD/JPY (OTC)</option>
-                <option value="CRYPTO">CRYPTO IDX</option>
+            <select name="mode">
+                <option value="1M">1 MIN (ULTRA SCALPER)</option>
+                <option value="5M">5 MIN (TREND SCANNER)</option>
+                <option value="15M">15 MIN (STABLE CORE)</option>
             </select>
 
-            <div class="upload-zone" onclick="document.getElementById('f').click()">
-                <span id="txt">📂 CONNECT TO GALLERY</span>
-                <input type="file" id="f" name="chart" accept="image/*" required style="display:none" onchange="document.getElementById('txt').innerText='DATA LOADED ✅'">
+            <div class="upload-area" onclick="document.getElementById('fileIn').click()">
+                <span id="fileTxt">📂 ATTACH MARKET DATA</span>
+                <input type="file" id="fileIn" name="chart" accept="image/*" required style="display:none" onchange="document.getElementById('fileTxt').innerText='CHART CONNECTED ✅'">
             </div>
             
-            <button type="submit" class="fire-btn">START DEEP ANALYSIS</button>
+            <button type="submit" class="execute-btn">EXECUTE TITAN SCAN</button>
         </form>
 
         {% if sig %}
-        <div class="prediction-result">
-            <div style="text-align:center; font-size:10px; color:var(--main); letter-spacing: 2px;">GOD MODE ACCURACY: {{acc}}%</div>
-            <div class="signal" style="color: {{col}}">{{sig}}</div>
+        <div class="result-hud">
+            <div style="text-align:center; font-size:10px; color:var(--neon); letter-spacing: 2px;">PROBABILITY: {{acc}}%</div>
+            <div class="sig-display" style="color: {{col}}">{{sig}}</div>
             <div style="text-align:center; margin-bottom:15px;">
-                <span style="background:var(--main); color:#000; padding:5px 15px; border-radius:5px; font-weight:bold; font-size:12px">TRADE AMOUNT: ${{trade}}</span>
+                <span style="background:var(--neon); color:#000; padding:6px 15px; border-radius:4px; font-weight:bold; font-size:12px">INVEST: ${{trade}}</span>
             </div>
-            <div class="logic-panel">
-                <b>🧠 NEURAL CORE LOGIC:</b><br>{{log}}
+            <div class="logic-terminal">
+                <b style="color:var(--neon)">[TITAN_LOGIC]:</b><br>{{log}}
             </div>
-            <div class="action-row">
-                <a href="/update/win" style="background:var(--win)">PROFIT</a>
-                <a href="/update/loss" style="background:var(--loss)">LOSS</a>
+            <div class="footer-btns">
+                <a href="/update/win" style="background:var(--win)">SUCCESS</a>
+                <a href="/update/loss" style="background:var(--loss)">FAIL</a>
             </div>
         </div>
         {% endif %}
     </div>
-    <div style="text-align:center; margin-top:20px;"><a href="/exit" style="color:#444; text-decoration:none; font-size:10px">TERMINATE SESSION</a></div>
+    <div style="text-align:center; margin-top:20px; opacity: 0.3;"><a href="/logout" style="color:#fff; text-decoration:none; font-size:10px">SHUTDOWN CORE</a></div>
 {% endif %}
 
 <script>
     setInterval(() => {
         const d = new Date();
-        document.getElementById('clk').innerText = d.toLocaleTimeString('en-GB');
+        document.getElementById('clock').innerText = d.toLocaleTimeString('en-GB');
     }, 1000);
 </script>
 </body>
@@ -132,48 +131,50 @@ HTML_V10 = '''
 '''
 
 @app.before_request
-def monitor():
-    day = datetime.date.today().isoformat()
-    if session.get('day') != day:
-        session.update({'day': day, 'credits': 100, 'wins': 0, 'losses': 0})
+def daily_sync():
+    today = datetime.date.today().isoformat()
+    if session.get('day') != today:
+        session.update({'day': today, 'credits': 100, 'wins': 0, 'losses': 0})
 
 @app.route('/')
-def root(): return render_template_string(HTML_V10)
+def index(): return render_template_string(HTML_V11)
 
 @app.route('/login', methods=['POST'])
 def login():
-    if request.form['u'] == ACCESS_DATA['user'] and request.form['p'] == ACCESS_DATA['pass']:
-        session['god_access'] = True
+    if request.form['u'] == CREDENTIALS['user'] and request.form['p'] == CREDENTIALS['pass']:
+        session['titan_auth'] = True
         return redirect('/')
     return "ACCESS DENIED"
 
-@app.route('/process', methods=['POST'])
-def process():
-    if session.get('credits', 0) <= 0: return "SYSTEM DEPLETED. RECHARGE AT MIDNIGHT."
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    if session.get('credits', 0) <= 0: return "SYSTEM DEPLETED. WAIT FOR AUTOMATIC MIDNIGHT RECHARGE."
     
     session['credits'] -= 1
-    bal = float(request.form['b'])
-    session['last_b'] = bal
-    pair = request.form.get('pair')
+    bal = float(request.form['bal'])
+    session['last_bal'] = bal
+    mode = request.form.get('mode')
     
-    time.sleep(2) # Scan effect
+    # Simulating Deep AI Computation
+    time.sleep(2) 
     
-    # Pro Analytical Engine
-    logic_bank = [
-        f"AI detected an 'Inverse Head & Shoulders' forming on {pair}. Bullish breakout imminent.",
-        f"Significant price rejection at the 0.786 Fibonacci level. Market trend shifting to Bearish.",
-        f"Volume Spike detected in {pair}. The next candle will likely follow the momentum."
+    patterns = ["Bullish Pin Bar", "Evening Star Pattern", "W-Shape Breakout", "V-Reversal Rejection"]
+    logic_data = [
+        f"AI Neural Net detected a '{random.choice(patterns)}' on the {mode} timeframe. Institutional buy-orders identified.",
+        f"Significant divergence found on RSI and MACD. The market is reaching a critical {mode} exhaustion point.",
+        f"Bollinger Band squeeze detected. High-velocity breakout expected in the next few candles."
     ]
     
-    data = [
-        {"s": "GOD CALL ⬆️", "c": "#00ff88", "a": 99.4, "l": random.choice(logic_bank), "p": 3},
-        {"s": "GOD PUT ⬇️", "c": "#ff3366", "a": 98.7, "l": random.choice(logic_bank), "p": 2},
-        {"s": "CALL (MTG-1) ⬆️", "c": "#00ff88", "a": 92.1, "l": "Standard volatility detected. Use 1st step Martingale to secure win.", "p": 5}
+    signals = [
+        {"s": "TITAN CALL ⬆️", "c": "#00e676", "a": 99.2, "l": random.choice(logic_data), "p": 3},
+        {"s": "TITAN PUT ⬇️", "c": "#ff4d4d", "a": 98.5, "l": random.choice(logic_data), "p": 2},
+        {"s": "MTG-1 RECOVERY ⬆️", "c": "#00e676", "a": 94.7, "l": "Trend is slightly volatile. 1-step Martingale is active for safety.", "p": 5}
     ]
-    pick = random.choice(data)
-    trade = round((bal * pick['p']) / 100, 2)
     
-    return render_template_string(HTML_V10, sig=pick['s'], col=pick['c'], acc=pick['a'], log=pick['l'], trade=trade)
+    res = random.choice(signals)
+    trade_val = round((bal * res['p']) / 100, 2)
+    
+    return render_template_string(HTML_V11, sig=res['s'], col=res['c'], acc=res['a'], log=res['l'], trade=trade_val)
 
 @app.route('/update/<res>')
 def update(res):
@@ -181,8 +182,8 @@ def update(res):
     else: session['losses'] += 1
     return redirect('/')
 
-@app.route('/exit')
-def exit():
+@app.route('/logout')
+def logout():
     session.clear()
     return redirect('/')
 
