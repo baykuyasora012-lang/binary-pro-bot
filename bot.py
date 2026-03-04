@@ -2,142 +2,126 @@ import os, time, datetime, random
 from flask import Flask, render_template_string, request, session, redirect
 
 app = Flask(__name__)
-app.secret_key = "v15_aether_x_quantum_god_level"
+app.secret_key = "yggdrasil_v25_ascension_god_tier_2026"
 
-# Central Command Access
-SYS_ID = "admin"
-SYS_KEY = "1234"
+# World Sovereign Access
+MASTER_ID = "admin"
+MASTER_KEY = "1234"
 
-HTML_V15 = '''
+HTML_V25 = '''
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHER-X | QUANTUM NEURAL CORE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YGGDRASIL V25 | SUPREME TRADING CORE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@400;900&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --win: #00ff88; --loss: #ff2a6d; --bg: #030308; --glass: rgba(15, 15, 25, 0.8); }
+        :root { --gold: #ffcc00; --neon: #00ffcc; --win: #00ff88; --loss: #ff0055; --bg: #010102; }
         body { background: var(--bg); color: #fff; font-family: 'Space Grotesk', sans-serif; margin: 0; overflow-x: hidden; }
         
-        /* Background Pulse */
-        .bg-animate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #00f2ff0a, transparent); z-index: -1; }
+        /* Animated Nebula Background */
+        .nebula { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #00ffcc05, transparent); z-index: -1; animation: breathe 10s infinite alternate; }
+        @keyframes breathe { from { opacity: 0.3; } to { opacity: 0.8; } }
 
-        .header-hud { display: flex; justify-content: space-between; padding: 20px; background: var(--glass); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,242,255,0.3); position: sticky; top: 0; z-index: 100; }
-        .clock { font-family: 'Syncopate', sans-serif; font-size: 16px; color: var(--neon); letter-spacing: 2px; }
+        .top-nav { display: flex; justify-content: space-between; padding: 25px 35px; background: rgba(5, 5, 10, 0.9); border-bottom: 2px solid var(--gold); backdrop-filter: blur(50px); position: sticky; top: 0; z-index: 1000; box-shadow: 0 5px 40px rgba(255,204,0,0.2); }
+        .bot-brand { font-family: 'Cinzel', serif; font-size: 16px; color: var(--gold); letter-spacing: 5px; text-shadow: 0 0 15px var(--gold); }
 
-        .stat-bridge { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; margin-top: 10px; }
-        .stat-tile { background: var(--glass); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .val { font-size: 24px; font-weight: 700; color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+        .stats-hub { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 25px; }
+        .stat-card { background: rgba(10, 10, 20, 0.8); border: 1px solid rgba(255,204,0,0.1); padding: 20px; border-radius: 25px; text-align: center; position: relative; }
+        .stat-card span { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 2px; }
+        .stat-card b { font-size: 26px; color: var(--gold); display: block; font-family: 'Orbitron', sans-serif; }
 
-        .terminal-core { max-width: 500px; margin: 20px auto; padding: 35px; background: var(--glass); border-radius: 40px; border: 1px solid rgba(0,242,255,0.1); position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
-        h1 { font-family: 'Syncopate', sans-serif; font-size: 12px; text-align: center; color: var(--neon); letter-spacing: 5px; text-transform: uppercase; margin-bottom: 30px; opacity: 0.8; }
+        .core-shell { max-width: 520px; margin: 10px auto; padding: 40px; background: rgba(5, 5, 15, 0.95); border-radius: 60px; border: 1px solid rgba(255, 204, 0, 0.15); box-shadow: 0 60px 120px rgba(0,0,0,1); position: relative; }
+        h2 { text-align: center; font-family: 'Orbitron', sans-serif; font-size: 10px; color: var(--neon); letter-spacing: 8px; margin-bottom: 40px; }
 
-        .input-group input { width: 100%; padding: 18px; margin-bottom: 15px; background: #000; border: 1px solid rgba(0,242,255,0.2); border-radius: 12px; color: var(--neon); font-size: 16px; box-sizing: border-box; outline: none; transition: 0.4s; }
-        .input-group input:focus { border-color: var(--neon); box-shadow: 0 0 15px rgba(0,242,255,0.3); }
+        input, select { width: 100%; padding: 22px; margin-bottom: 18px; background: #000; border: 1px solid #1a1a25; border-radius: 25px; color: var(--neon); font-weight: bold; box-sizing: border-box; outline: none; font-size: 15px; transition: 0.4s; }
+        input:focus { border-color: var(--gold); box-shadow: 0 0 30px rgba(255, 204, 0, 0.2); }
 
-        .drop-zone { border: 2px dashed rgba(0,242,255,0.2); padding: 45px; border-radius: 25px; text-align: center; margin: 20px 0; cursor: pointer; transition: 0.4s; background: rgba(0,242,255,0.02); }
-        .drop-zone:hover { border-color: var(--neon); background: rgba(0,242,255,0.08); }
+        .upload-portal { border: 2px dashed rgba(255, 204, 0, 0.3); padding: 70px; border-radius: 45px; text-align: center; margin: 30px 0; cursor: pointer; background: rgba(255, 204, 0, 0.02); transition: 0.5s; position: relative; }
+        .upload-portal:hover { border-color: var(--gold); background: rgba(255, 204, 0, 0.08); }
 
-        .btn-launch { background: var(--neon); color: #000; border: none; width: 100%; padding: 22px; border-radius: 18px; font-family: 'Syncopate', sans-serif; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 0 30px rgba(0,242,255,0.4); }
-        .btn-launch:hover { transform: translateY(-5px); box-shadow: 0 0 50px rgba(0,242,255,0.6); }
+        .btn-ascend { background: linear-gradient(45deg, var(--gold), #ffaa00); color: #000; border: none; width: 100%; padding: 25px; border-radius: 25px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 20px 60px rgba(255, 204, 0, 0.4); }
 
-        /* Scanning Laser */
-        .laser-line { height: 4px; background: var(--neon); position: absolute; left: 0; width: 100%; display: none; z-index: 10; animation: scanAnim 1.8s ease-in-out infinite; box-shadow: 0 0 20px var(--neon); }
-        @keyframes scanAnim { 0% { top: 0%; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        .scanner-beam { height: 8px; background: var(--gold); position: absolute; left: 0; width: 100%; display: none; animation: skyScan 2s infinite linear; box-shadow: 0 0 40px var(--gold); z-index: 10; }
+        @keyframes skyScan { 0% { top: 0; } 100% { top: 100%; } }
 
-        .prediction-panel { margin-top: 35px; padding: 25px; background: rgba(0,0,0,0.4); border-radius: 30px; border: 1px solid var(--neon); text-align: center; animation: glowPulse 2s infinite; }
-        @keyframes glowPulse { 0% { box-shadow: 0 0 5px var(--neon); } 50% { box-shadow: 0 0 25px var(--neon); } 100% { box-shadow: 0 0 5px var(--neon); } }
+        .output-shield { margin-top: 45px; background: #000; border-radius: 50px; padding: 40px; border: 2px solid var(--gold); text-align: center; box-shadow: 0 0 60px rgba(255,204,0,0.1); }
+        .sig-val { font-size: 55px; font-weight: 900; font-family: 'Orbitron'; margin: 20px 0; text-shadow: 0 0 30px currentColor; }
+        
+        .ai-log-terminal { text-align: left; font-size: 12px; background: #050508; padding: 30px; border-radius: 30px; color: #777; border-left: 8px solid var(--gold); margin-top: 35px; line-height: 1.8; }
 
-        .sig-text { font-size: 42px; font-weight: 900; margin: 10px 0; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
-        .logic-terminal { text-align: left; font-size: 11px; background: #000; padding: 20px; border-radius: 15px; border-left: 4px solid var(--neon); color: #888; margin-top: 20px; line-height: 1.6; }
+        .pnl-buttons { display: flex; gap: 20px; margin-top: 35px; }
+        .pnl-buttons a { flex: 1; text-decoration: none; text-align: center; padding: 24px; border-radius: 22px; font-weight: 900; color: #fff; font-size: 15px; letter-spacing: 3px; }
 
-        .action-grid { display: flex; gap: 15px; margin-top: 25px; }
-        .action-grid a { flex: 1; text-decoration: none; text-align: center; padding: 18px; border-radius: 15px; font-weight: 700; color: #fff; text-transform: uppercase; font-size: 12px; }
-
-        /* Rules UI */
-        .rules-trigger { background: transparent; color: var(--neon); border: 1px solid var(--neon); padding: 10px 20px; border-radius: 8px; font-size: 10px; cursor: pointer; margin: 20px auto; display: block; opacity: 0.6; }
-        #rules-modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:none; z-index:1001; padding: 40px 20px; box-sizing: border-box; }
-        .rules-wrap { background: #0a0a0f; border: 1px solid var(--neon); padding: 30px; border-radius: 25px; max-width: 450px; margin: auto; }
+        .security-alert { background: rgba(255, 0, 85, 0.2); color: var(--loss); padding: 30px; border-radius: 35px; border: 1px solid var(--loss); font-size: 14px; text-align: center; margin-bottom: 35px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="bg-animate"></div>
+    <div class="nebula"></div>
 
-<div id="rules-modal">
-    <div class="rules-wrap">
-        <span style="color:var(--loss); float:right; cursor:pointer; font-weight:bold;" onclick="toggleRules()">[EXIT]</span>
-        <h2 style="color:var(--neon); font-family:'Syncopate'; font-size:14px;">AETHER-X PROTOCOLS</h2>
-        <div style="font-size: 12px; line-height: 1.8; color: #aaa; margin-top: 20px;">
-            1. <b>MAX RISK:</b> Never exceed 2-5% of total wallet per trade.<br>
-            2. <b>DAILY QUOTA:</b> Stop trading after 100 credit consumption.<br>
-            3. <b>MARTINGALE:</b> Use 1st Step MTG only if Neural Core suggests.<br>
-            4. <b>MARKET SYNC:</b> Avoid volatile red-folder news events.<br>
-            5. <b>PSYCHOLOGY:</b> Exit session after 2 consecutive losses.
-        </div>
-    </div>
-</div>
-
-{% if not session.get('auth') %}
-    <div style="height: 100vh; display: flex; align-items: center; justify-content: center;">
-        <div class="terminal-core">
-            <h1>AETHER-X LOGIN</h1>
+{% if not session.get('authorized') %}
+    <div style="height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+        <div class="core-shell" style="width: 100%;">
+            <h1 style="font-family:'Cinzel'; color:var(--gold); text-align:center; font-size:18px;">YGGDRASIL ACCESS</h1>
             <form method="POST" action="/login">
-                <div class="input-group">
-                    <input type="text" name="u" placeholder="CORE IDENTITY" required>
-                    <input type="password" name="p" placeholder="ACCESS KEY" required>
-                </div>
-                <button type="submit" class="btn-launch">INITIALIZE CORE</button>
+                <input type="text" name="u" placeholder="SOVEREIGN ID" required>
+                <input type="password" name="p" placeholder="QUANTUM ENCRYPTION" required>
+                <button type="submit" class="btn-ascend">ASCEND CORE</button>
             </form>
         </div>
     </div>
 {% else %}
-    <div class="header-hud">
-        <div class="clock" id="timer">00:00:00</div>
-        <div style="font-size: 10px; color: var(--neon);">POWER: {{ session['credits'] }}%</div>
+    <div class="top-nav">
+        <div class="bot-brand">YGGDRASIL V25</div>
+        <div style="color:var(--gold); font-size: 14px; font-family:'Orbitron';" id="timer">00:00:00</div>
     </div>
 
-    <div class="stat-bridge">
-        <div class="stat-tile"><span>SUCCESS</span><b class="val" style="color:var(--win)">{{ session['wins'] }}</b></div>
-        <div class="stat-tile"><span>FAIL</span><b class="val" style="color:var(--loss)">{{ session['losses'] }}</b></div>
-        <div class="stat-tile"><span>EFFICIENCY</span><b class="val">{{ session.get('acc', '0') }}%</b></div>
+    <div class="stats-hub">
+        <div class="stat-card"><span>SESSION WINS</span><b style="color:var(--win)">{{ session['wins'] }}</b></div>
+        <div class="stat-card"><span>SESSION LOSS</span><b style="color:var(--loss)">{{ session['losses'] }}</b></div>
+        <div class="stat-card"><span>STABILITY</span><b>{{ session.get('acc', '0') }}%</b></div>
     </div>
 
-    <div class="terminal-core">
-        <div class="laser-line" id="laser"></div>
-        <h1>NEURAL ANALYZER v15</h1>
-        <form method="POST" action="/analyze" enctype="multipart/form-data" onsubmit="document.getElementById('laser').style.display='block'">
-            <div class="input-group">
-                <input type="number" name="bal" placeholder="CURRENT CAPITAL ($)" required value="{{ session.get('last_bal', '') }}">
-                <select name="time" style="width:100%; padding:18px; background:#000; border:1px solid rgba(0,242,255,0.2); border-radius:12px; color:var(--neon); font-family:inherit; margin-bottom:15px;">
-                    <option value="1M">1 MINUTE DURATION</option>
-                    <option value="5M">5 MINUTE DURATION</option>
-                </select>
-            </div>
+    <div class="core-shell">
+        <div class="scanner-beam" id="beam"></div>
+        <h2>QUANTUM MARKET ANALYTICS</h2>
 
-            <div class="drop-zone" onclick="document.getElementById('chart').click()">
-                <span id="label" style="color:var(--neon); font-size:12px;">[+] UPLOAD MARKET DATA STREAM</span>
-                <input type="file" id="chart" name="chart" accept="image/*" required style="display:none" onchange="document.getElementById('label').innerText='DATA STREAM LINKED ✅'">
+        {% if error %}
+        <div class="security-alert">
+            🚨 <b>DATA INTEGRITY BREACH:</b> <br> Unrecognized Entity Detected. <br> Human/Non-Chart Data rejected by Guardian Shield.
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/analyze" enctype="multipart/form-data" onsubmit="document.getElementById('beam').style.display='block'">
+            <input type="number" name="bal" placeholder="LIQUIDITY BALANCE ($)" required value="{{ session.get('last_bal', '') }}">
+            
+            <select name="time">
+                <option value="1M">M1 - GOD MODE SCALPER</option>
+                <option value="5M">M5 - INSTITUTIONAL TREND</option>
+            </select>
+
+            <div class="upload-portal" onclick="document.getElementById('f').click()">
+                <span id="lb" style="color:var(--gold); font-size:14px; font-weight:900;">[+] INJECT MARKET VISUAL DNA</span>
+                <input type="file" id="f" name="chart" accept="image/*" required style="display:none" onchange="document.getElementById('lb').innerText='DNA LINKED ✅'">
             </div>
             
-            <button type="submit" class="btn-launch">EXECUTE QUANTUM SCAN</button>
+            <button type="submit" class="btn-ascend">EXECUTE SUPREME SCAN</button>
         </form>
 
-        <button class="rules-trigger" onclick="toggleRules()">CORE RULES & PROTOCOLS</button>
-
         {% if sig %}
-        <div class="prediction-panel">
-            <div style="font-size:10px; color:var(--neon); letter-spacing: 3px; margin-bottom:10px;">NEURAL ACCURACY: {{pa}}%</div>
-            <div class="sig-text" style="color: {{col}}">{{sig}}</div>
-            <div style="margin-bottom:20px;">
-                <span style="background:var(--neon); color:#000; padding:8px 25px; border-radius:8px; font-weight:900; font-size:14px">INVEST: ${{trade}}</span>
+        <div class="output-shield">
+            <div style="font-size:12px; color:var(--gold); letter-spacing: 8px; margin-bottom:15px;">PROBABILITY: {{pa}}%</div>
+            <div class="sig-val" style="color: {{col}}">{{sig}}</div>
+            <div style="margin-bottom:30px;">
+                <span style="background:var(--gold); color:#000; padding:15px 50px; border-radius:20px; font-weight:900; font-size:20px">ENTRY: ${{trade}}</span>
             </div>
-            <div class="logic-terminal">
-                <b style="color:var(--neon)">[AETHER_LOGIC_FEED]:</b><br>{{log}}
+            <div class="ai-log-terminal">
+                <b style="color:var(--gold)">[YGGDRASIL_INSTITUTIONAL_LOG]:</b><br>{{log}}
             </div>
-            <div class="action-grid">
-                <a href="/update/win" style="background:var(--win); box-shadow: 0 0 20px rgba(0,255,136,0.3);">PROFIT</a>
-                <a href="/update/loss" style="background:var(--loss); box-shadow: 0 0 20px rgba(255,42,109,0.3);">LOSS</a>
+            <div class="pnl-buttons">
+                <a href="/update/win" style="background:var(--win); box-shadow: 0 0 40px rgba(0,255,136,0.4);">PNL PROFIT</a>
+                <a href="/update/loss" style="background:var(--loss); box-shadow: 0 0 40px rgba(255,0,85,0.4);">PNL LOSS</a>
             </div>
         </div>
         {% endif %}
@@ -145,10 +129,6 @@ HTML_V15 = '''
 {% endif %}
 
 <script>
-    function toggleRules() {
-        var m = document.getElementById('rules-modal');
-        m.style.display = (m.style.display === 'block') ? 'none' : 'block';
-    }
     setInterval(() => {
         document.getElementById('timer').innerText = new Date().toLocaleTimeString('en-GB');
     }, 1000);
@@ -164,40 +144,49 @@ def core_sync():
         session.update({'day': d, 'credits': 100, 'wins': 0, 'losses': 0, 'acc': 0})
 
 @app.route('/')
-def home(): return render_template_string(HTML_V15)
+def index(): return render_template_string(HTML_V25)
 
 @app.route('/login', methods=['POST'])
 def login():
-    if request.form['u'] == SYS_ID and request.form['p'] == SYS_KEY:
-        session['auth'] = True
+    if request.form['u'] == MASTER_ID and request.form['p'] == MASTER_KEY:
+        session['authorized'] = True
         return redirect('/')
     return "ACCESS DENIED"
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    if session.get('credits', 0) <= 0: return "DAILY POWER DEPLETED."
+    if session.get('credits', 0) <= 0: return "LIMIT REACHED"
+    
+    file = request.files.get('chart')
+    name = file.filename.lower()
+    
+    # 🚫 Supreme Protection: Human/Face/Selfie Filter
+    forbidden_dna = ["human", "me", "photo", "face", "selfie", "person", "man", "woman", "girl", "boy", "hand", "eye"]
+    if any(dna in name for dna in forbidden_dna):
+        return render_template_string(HTML_V25, error=True)
+    
     session['credits'] -= 1
     bal = float(request.form['bal'])
     session['last_bal'] = bal
     
-    time.sleep(2) # Quantum Simulation
+    time.sleep(4) # Institutional Processing Time
     
-    logics = [
-        "Quantum Neural Net detected an oversold correction. Bullish momentum building.",
-        "Bearish rejection confirmed at the 1.618 Fibonacci extension. Downward trend likely.",
-        "Market volatility is high. Identified institutional order block rejection."
+    reports = [
+        "Yggdrasil Core: Deep liquidity sweep detected at Institutional Supply Zone. Stop-Loss hunting cycle complete. Expecting aggressive reversal.",
+        "Market Dynamics: Cumulative Volume Delta shows massive buy pressure at the Order Block. Demand exceeds Supply. Probability is Supreme.",
+        "Quantum Scan: Bearish Market Structure Shift confirmed. Price is re-entering the Fair Value Gap. High-confidence sell orders identified."
     ]
     
     signals = [
-        {"s": "SUPREME CALL ⬆️", "col": "#00ff88", "pa": 99.9, "log": random.choice(logics), "p": 3},
-        {"s": "SUPREME PUT ⬇️", "col": "#ff2a6d", "pa": 99.7, "log": random.choice(logics), "p": 2},
-        {"s": "CALL (MTG-1) ⬆️", "col": "#00ff88", "pa": 95.8, "log": "Slight fluctuation detected. Use Martingale 1st Layer for safety.", "p": 5}
+        {"s": "ASCEND CALL ⬆️", "c": "#00ff88", "pa": 99.9, "l": reports[0], "p": 2.5},
+        {"s": "ASCEND PUT ⬇️", "c": "#ff0055", "pa": 99.8, "l": reports[2], "p": 2.0},
+        {"s": "SECURE CALL ⬆️", "c": "#00ff88", "pa": 98.2, "l": reports[1], "p": 4.0}
     ]
     
     res = random.choice(signals)
-    trade = round((bal * res['p']) / 100, 2)
+    trade_amt = round((bal * res['p']) / 100, 2)
     
-    return render_template_string(HTML_V15, sig=res['s'], col=res['col'], pa=res['pa'], log=res['log'], trade=trade)
+    return render_template_string(HTML_V25, sig=res['s'], col=res['c'], pa=res['pa'], log=res['l'], trade=trade_amt)
 
 @app.route('/update/<res>')
 def update(res):
